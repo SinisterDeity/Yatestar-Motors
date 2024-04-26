@@ -25,7 +25,7 @@ WHILE 1	'Run this loop forever
 	ZS	'Clear all errors to allow motion
 	SWITCH m	'Switch depending on mode (m) variable
 		CASE 0	'Tension tape towards Motor 1 mode
-			T=-3000	'Increase tension
+			T=-2000	'Increase tension
 			WAIT=1000	'Wait 1 second for Motor 2 to engage brake
 			MT	'Put motor in tension mode
 			G	'Tension tape
@@ -66,15 +66,16 @@ WHILE 1	'Run this loop forever
 				WAIT=50	'Wait for movement
 				WHILE CTR(1)<p	'While approaching...
 					IF CTR(1)<=c	'If stopped or going wrong direction
-						BREAK	
+						GOTO1
 					ELSEIF m!=4	'Stop if mode change
-						BREAK
+						GOTO1
 					ELSE
 						c=CTR(1)	'Store counter value
 						WAIT=20	'Wait for motion to progress
 					ENDIF
 				LOOP
-				S	'Stop once motion complete or error reached
+				C1
+				X	'Stop once motion complete or error reached
 			ELSEIF p<0	'Tape heading towards motor 1, motor 2 tensioning
 				c=0	'Reset stored counter value
 				VT=-v	'Apply velocity value to give slack
@@ -86,15 +87,16 @@ WHILE 1	'Run this loop forever
 				RCTR(1)	'Report external encoder
 				WHILE CTR(1)>=p	'While in motion...
 					IF CTR(1)>=c	'If stopped or going wrong direction
-						BREAK
+						GOTO2
 					ELSEIF m!=4	'Stop if mode change
-						BREAK
+						GOTO2
 					ELSE
 						c=CTR(1)	'Store external encoder counter
 						WAIT=20	'Wait for motion to progress
 					ENDIF
 					RCTR(1)	'Report counter value
 				LOOP
+				C2
 				RCTR(1)	'Report external encoder position (linearly proportional to distance)
 				pp=pp+CTR(1)	'Retain position history
 				VT=0	'Set velocity to zero for braking
