@@ -1,0 +1,239 @@
+RUN?
+SADDR1
+KP=100
+KD=750
+KI=20
+F
+E=100
+ENC0
+A=5000
+rr=100
+s=12566
+aaa=0
+qq=0
+C1
+IF mmm==1
+IF a==0
+S
+MP
+D=0
+G
+a=3
+ENDIF
+IF a==2
+IF v>50
+v=50
+ENDIF
+C200
+pp=@P*10000
+ee=CTR*200
+nnn=0
+IF nnn==1
+MV
+vv=v*4040
+V=vv
+i=0
+xxx=CTR*1000
+xxx=ppp/s
+xxx=xxx+d
+G
+WHILE 1
+ppp=CTR*1000
+ppp=ppp/s
+IF ppp>=xxx
+S
+BREAK
+ELSEIF i==50
+i=0
+IF qq==pp
+PRINT("S",#13)
+S
+BREAK
+PRINT("Motion Error",#13)
+ENDIF
+qq=pp
+ENDIF
+LOOP
+ELSE
+ccc=250638
+dd=d*ccc
+ddd=dd/1000
+vv=v*4040
+MP
+V=vv
+D=ddd
+G
+TWAIT
+ENDIF
+ppp=@P*10000
+eee=CTR*200
+ff=ppp-pp
+gg=eee-ee
+rr=ff/gg
+IF a==0
+GOTO1
+ENDIF
+WAIT=w*4069
+m=m-1
+IF m>0
+GOTO200
+ENDIF
+a=3
+ENDIF
+IF a==1
+MT
+IF t>1023
+t=1023
+ENDIF
+IF t<0
+t=0
+ENDIF
+T=t*-1
+ENDIF
+ENDIF
+IF mmm==2
+IF a==0
+S
+MP
+D=0
+G
+a=3
+ENDIF
+IF a==2
+IF x>50
+x=50
+ENDIF
+zz=z*ccc
+zzz=zz/1000
+xx=x*4040
+C2
+MP
+V=xx
+D=zzz
+G
+TWAIT
+IF a==0
+GOTO1
+ENDIF
+a=3
+ENDIF
+IF a==1
+MT
+IF t>1023
+t=1023
+ENDIF
+IF t<0
+t=0
+ENDIF
+T=t*-1
+ENDIF
+a=3
+ENDIF
+IF mmm==3
+ee=CTR
+MF0
+O=0
+r=680
+rrr=17
+IF v<0
+v=-v
+ENDIF
+IF p>0
+MV
+V=v
+G
+i=0
+qqq=0
+WHILE 1
+pp=CTR*1000
+pp=pp/s
+IF pp>=p
+Rpp
+S
+Rss
+BREAK
+ELSEIF i==5
+i=0
+Rpp
+IF qqq==CTR
+GOSUB11
+BREAK
+ELSEIF vvv==1
+GOSUB10
+V=sss
+Rsss
+G
+ENDIF
+qq=pp
+qqq=CTR
+ENDIF
+i=i+1
+LOOP
+PRINT("S",#13) Rpp
+ELSEIF p<0
+MT
+IF t<0
+t=-t
+ENDIF
+IF t>1023
+t=1023
+ENDIF
+T=-t
+i=0
+WHILE 1
+pp=CTR*1000
+pp=pp/s
+IF pp<=p
+S
+Rpp
+BREAK
+ENDIF
+IF i==5
+i=0
+Rpp
+IF qqq==CTR
+GOSUB11
+PRINT("aaa=1",#13)
+BREAK
+ENDIF
+qq=pp
+qqq=CTR
+ENDIF
+i=i+1
+LOOP
+PRINT("S END",#13)
+pp=CTR*1000
+pp=pp/s
+Rpp
+ENDIF
+ELSEIF mmm==4
+pp=CTR*1000
+pp=pp/s
+PRINT("Motor 1: ") Rpp
+ELSEIF mmm==5
+r=725
+rrr=1
+GOSUB10
+Rsss
+ELSE
+c=CTR
+GOTO1
+ENDIF
+END
+C10
+ii=@P/2
+sss=ii*rrr
+sss=sss/10
+sss=sss/r
+sss=10000-sss
+sss=1000000000/sss
+vv=v/100
+sss=vv*sss
+sss=sss/1000
+RETURN
+C11
+PRINT("S",#13)
+S
+PRINT("Motion Error",#13)
+PRINT("END",#13)
+RETURN

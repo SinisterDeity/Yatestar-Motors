@@ -1,0 +1,175 @@
+RUN?
+SADDR2
+KP=100
+KD=750
+KI=20
+F
+E=100
+ENC0
+A=5000
+rr=100
+s=12566
+aaa=0
+C1
+IF mmm==1
+IF a==0
+S
+MP
+D=0
+G
+a=3
+ENDIF
+IF a==1
+IF v>50
+v=50
+ENDIF
+C200
+ccc=-250638
+dd=d*ccc
+ddd=dd/1000
+vv=v*4040
+pp=@P*10000
+ee=CTR*200
+MP
+V=vv
+D=ddd
+G
+TWAIT
+ppp=@P*10000
+eee=CTR*200
+ff=ppp-pp
+gg=eee-ee
+rr=ff/gg
+IF a==0
+GOTO1
+ENDIF
+WAIT=w*4069
+m=m-1
+IF m>0
+GOTO200
+ENDIF
+a=3
+ENDIF
+IF a==2
+MT
+IF t>1023
+t=1023
+ENDIF
+IF t<0
+t=0
+ENDIF
+T=t
+ENDIF
+ENDIF
+IF mmm==2
+IF a==0
+S
+MP
+D=0
+G
+a=3
+ENDIF
+IF a==1
+IF x>50
+x=50
+ENDIF
+zz=z*ccc
+zzz=zz/1000
+xx=x*4040
+C2
+MP
+V=xx
+D=zzz
+G
+TWAIT
+IF a==0
+GOTO1
+ENDIF
+a=3
+ENDIF
+IF a==2
+MT
+IF t>1023
+t=1023
+ENDIF
+IF t<0
+t=0
+ENDIF
+T=t
+ENDIF
+a=3
+ENDIF
+IF mmm==3
+ee=CTR
+MF0
+O=0
+IF v<0
+v=-v
+ENDIF
+IF p<0
+MV
+V=-v
+G
+r=680
+rrr=17
+i=0
+WHILE Bt
+pp=CTR*1000
+pp=pp/s
+IF pp<=p
+Rpp
+S
+ENDIF
+IF i==50
+i=0
+IF aaa==0
+IF vvv==1
+GOSUB10
+V=sss
+G
+ENDIF
+ELSE
+Rpp
+S
+BREAK
+ENDIF
+ENDIF
+i=i+1
+LOOP
+ELSEIF p>0
+MT
+IF t<0
+t=-t
+ENDIF
+IF t>1023
+t=1023
+ENDIF
+T=t
+ENDIF
+ELSEIF mmm==4
+pp=CTR*1000
+pp=pp/s
+PRINT("Motor 2: ") Rpp
+ELSEIF mmm==5
+r=725
+rrr=1
+GOSUB10
+PRINT("2: ") Rsss
+ELSE
+c=CTR
+GOTO1
+ENDIF
+END
+C10
+ii=@P/2
+ii=-ii
+sss=ii*rrr
+sss=sss/10
+sss=sss/r
+sss=10000-sss
+sss=1000000000/sss
+vv=v/100
+sss=vv*sss
+sss=sss/1000
+sss=-sss
+RETURN
