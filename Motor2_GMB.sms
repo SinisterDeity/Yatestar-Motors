@@ -1,0 +1,124 @@
+'Yatestar Motor 2 Code
+
+'Start by sending "RUN" to both motors, then utilize the m (mode) variable
+'This code was developed by Griffin Bradford at ASC/NHMFL/FSU.
+'griffin.bradford@outlook.com
+'99*pi/1000 mm per external encounter tick
+
+RUN?	'Run program
+SADDR2	'Set motor 2 address to 2
+SLD	'Disable software limits
+EIGN(W,0)	'Disable hardware travel limits
+ENC0	'Use internal encoder
+MS0	'Set counter to step/direction mode
+TS=65536	'Set slowest tension application rate
+ADT=5000	'Acceleration (Default value in motor playground)
+p=0	'Initialize target position to zero
+pp=0	'Initialize position history to zero
+v=20000	'Initialize velocity to slow value
+m=-1	'Initialize mode to nothing
+c=0	'Initialize counter storage to zero
+
+WAIT=1000	'Allow Motor 1 to respond first
+PRINT("Motor 2 Online",#13)
+
+WHILE 1	'Run this loop forever
+	ZS
+	SWITCH m	'Switch depending on mode (m) variable
+		CASE 0	'Tension tape towards Motor 1 mode
+			VT=0	'Target velocity (only way to brake?)
+			MV	'Put motor in velocity mode to engage brake
+			G	'Engage brake to tension tape from Motor 2
+		BREAK	'End case 1
+
+		CASE 1	'Tension tape towards Motor 2 mode
+			T=3000
+			WAIT=1000	'Wait 1 second for Motor 1 to engage brake
+			MT	'Put motor in tension mode
+			G	'Tension tape
+			ZS	'Clear errors to print?
+			PRINT("Tensioning Towards Motor 2 Done",#13)
+		BREAK	'End case 2
+
+		CASE 2	'Give slack on Motor 1 side
+			VT=0	'Target velocity (only way to brake?)
+			MV	'Put motor in velocity mode to engage brake
+			G	'Engage brake to release slack from Motor 1
+		BREAK
+
+		CASE 3	'Give slack on Motor 2 side
+			VT=-60000	'Apply velocity value to give slack
+			MV	'Put motor into velocity mode
+			WAIT=1000	'Wait for 1 second for Motor 2 brake to engage
+			G	'Begin moving
+			WAIT=500	'Wait for 0.5 seconds of slack to accumulate
+			X	'Stop feeding slack
+			ZS	'Clear errors to print
+			PRINT("Motor 2 Slack Fed",#13)
+		BREAK
+
+		CASE 4	'Absolute Movement mode
+			IF p>0	'Tape heading towards motor 2, motor 1 tensioning
+				c=0	'Reset stored counter value
+				VT=v	'Apply velocity value to give slack
+				MV	'Put motor into velocity mode
+				WAIT=1000	'Wait for 1 second for Motor 2 brake to engage
+				MS0	'Reset external counter
+				G	'Begin moving
+				WAIT=50	'Wait 50 ms for motors to move and counter to tick
+				RCTR(1)	'Report external encoder counter
+				WHILE CTR(1)<=p	'While in motion...
+					IF CTR(1)<=c	'Stop if stopped or going wrong direction
+						BREAK
+					ELSEIF m!=4	'Stop if mode changed
+						BREAK
+					ELSE
+						c=CTR(1)	'Store external encoder counter
+						WAIT=20	'Wait for motion to progress
+					ENDIF
+					RCTR(1)	'Report external encoder position (linearly proportional to distance)
+				LOOP
+				RCTR(1)	'Output final counter reading
+				pp=pp+CTR(1)	'Retain position history
+				VT=0	'Set zero velocity for braking
+				G	'Begin braking
+				ZS	'Clear errors to allow output?
+				PRINT("Positive Motion Completed",#13)
+			ELSEIF p<0	'Tape heading towards motor 1, motor 2 tensioning
+				MS0	'Reset external counter
+				T=1000	'Lower tension for movement mode
+				MT	'Put motor in tension mode
+				G	'Tension tape
+				c=CTR(1)	'Store external encoder counter
+				WAIT=50	'Wait for movement
+				WHILE CTR(1)>p	'While approaching...
+					IF CTR(1)>=c	'Stop if stopped or going wrong direction
+						BREAK
+					ELSEIF m!=4	'Stop if mode changed
+						BREAK
+					ELSE
+						c=CTR(1)	'Store external encoder counter
+						WAIT=20	'Wait for motion to progress
+					ENDIF
+				LOOP
+				S	'Stop once motion complete or error reached
+			ENDIF
+		BREAK
+
+		CASE 5	'Check communication
+			WAIT=100	'Wait for Motor 1 to respond first
+			PRINT("Motor 2 Still Connected",#13)	'Print connected message
+		BREAK
+		
+		CASE 6	'Report global position
+			WAIT=1000	'Wait for Motor 1 to respond first
+			PRINT("M2GP:",pp,#13)	'Output global position
+		BREAK
+
+		DEFAULT	'Idle case
+		BREAK
+	ENDS
+	m=-1	'Reset to idle state
+	WAIT=100	'Wait 100 ms to not kill motor CPU
+LOOP
+END

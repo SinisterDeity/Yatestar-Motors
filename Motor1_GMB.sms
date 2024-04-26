@@ -1,0 +1,121 @@
+'Yatestar Motor 1 Code
+
+'Start by sending "RUN" to both motors, then utilize the m (mode) variable
+'This code was developed by Griffin Bradford at ASC/NHMFL/FSU.
+'griffin.bradford@outlook.com
+'99*pi/1000 mm per external encounter tick
+
+RUN?	'Run program
+SADDR1	'Set motor 1 address to 1
+SLD	'Disable software travel limits
+EIGN(W,0)	'Disable hardware travel limits
+ENC0	'Use internal encoder
+MS0	'Set counter to step/direction mode
+TS=65536	'Set slowest tension application rate
+ADT=5000	'Set acceleration to maximum
+p=0	'Initialize target position to zero
+pp=0	'Initialize position history to zero
+v=20000	'Initialize velocity to slow value
+m=-1	'Initialize mode to idle
+c=0	'Initialize counter storage to zero
+
+PRINT("Motor 1 Online",#13)
+
+WHILE 1	'Run this loop forever
+	ZS	'Clear all errors to allow motion
+	SWITCH m	'Switch depending on mode (m) variable
+		CASE 0	'Tension tape towards Motor 1 mode
+			T=-3000	'Increase tension
+			WAIT=1000	'Wait 1 second for Motor 2 to engage brake
+			MT	'Put motor in tension mode
+			G	'Tension tape
+			ZS	'Clear errors to print?
+			PRINT("Tensioning Towards Motor 1 Done",#13)
+		BREAK
+
+		CASE 1	'Tension tape torwards Motor 2 mode
+			VT=0	'Target velocity (only way to brake?)
+			MV	'Put motor in velocity mode to engage brake
+			G	'Engage brake to tension tape from Motor 2
+		BREAK
+
+		CASE 2	'Give slack on Motor 1 side
+			VT=60000	'Apply velocity value to give slack
+			MV	'Put motor into velocity mode
+			WAIT=1000	'Wait for 1 second for Motor 2 brake to engage
+			G	'Begin moving
+			WAIT=500	'Wait for 0.5 seconds of slack to accumulate
+			X	'Stop feeding slack
+			ZS	'Clear errors to print?
+			PRINT("Motor 1 Slack Fed",#13)
+		BREAK
+
+		CASE 3	'Give slack on Motor 2 side
+			VT=0	'Target velocity (only way to brake?)
+			MV	'Put motor in velocity mode to engage brake
+			G	'Engage brake to release slack from Motor 2
+		BREAK
+
+		CASE 4	'Absolute Movement mode
+			IF p>0	'Tape heading towards motor 2, motor 1 tensioning
+				MS0	'Reset external counter
+				T=-1000	'Lower tension for movement
+				MT	'Put motor in tension mode
+				G	'Tension tape
+				c=CTR(1)	'Store external encoder value
+				WAIT=50	'Wait for movement
+				WHILE CTR(1)<p	'While approaching...
+					IF CTR(1)<=c	'If stopped or going wrong direction
+						BREAK	
+					ELSEIF m!=4	'Stop if mode change
+						BREAK
+					ELSE
+						c=CTR(1)	'Store counter value
+						WAIT=20	'Wait for motion to progress
+					ENDIF
+				LOOP
+				S	'Stop once motion complete or error reached
+			ELSEIF p<0	'Tape heading towards motor 1, motor 2 tensioning
+				c=0	'Reset stored counter value
+				VT=-v	'Apply velocity value to give slack
+				MV	'Put motor into velocity mode
+				WAIT=1000	'Wait for 1 second for Motor 2 brake to engage
+				MS0	'Reset external counter
+				G	'Begin moving
+				WAIT=50	'Wait 50 ms for motors to move and counter to tick
+				RCTR(1)	'Report external encoder
+				WHILE CTR(1)>=p	'While in motion...
+					IF CTR(1)>=c	'If stopped or going wrong direction
+						BREAK
+					ELSEIF m!=4	'Stop if mode change
+						BREAK
+					ELSE
+						c=CTR(1)	'Store external encoder counter
+						WAIT=20	'Wait for motion to progress
+					ENDIF
+					RCTR(1)	'Report counter value
+				LOOP
+				RCTR(1)	'Report external encoder position (linearly proportional to distance)
+				pp=pp+CTR(1)	'Retain position history
+				VT=0	'Set velocity to zero for braking
+				G	'Begin braking
+				ZS	'Clear errors to allow output?
+				PRINT("Negative Motion Completed",#13)
+			ENDIF
+		BREAK
+
+		CASE 5	'Check communication
+			PRINT("Motor 1 Still Connected",#13)	'Print connected message
+		BREAK
+
+		CASE 6	'Report global position
+			PRINT("M1GP:",pp,#13)	'Output global position
+		BREAK
+
+		DEFAULT	'Idle case
+		BREAK
+	ENDS
+	m=-1	'Reset to idle state
+	WAIT=100	'Wait 100 ms to not kill motor CPU
+LOOP
+END
